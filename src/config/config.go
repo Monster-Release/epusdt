@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/spf13/viper"
@@ -75,11 +74,6 @@ func GetAppUri() string {
 
 func GetEtherscanApi() string {
 	return viper.GetString("etherscan_api")
-}
-
-func GetPolygonConfirmation() int {
-	confirmation, _ := strconv.Atoi(viper.GetString("polygon_confirmation"))
-	return confirmation
 }
 
 func GetApiAuthToken() string {

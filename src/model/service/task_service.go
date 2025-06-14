@@ -103,6 +103,9 @@ func Trc20CallBack(token string, wg *sync.WaitGroup) {
 			log.Sugar.Error(err)
 		}
 	}()
+	if !data.IsWalletLocked(token) {
+		return
+	}
 	client := http_client.GetHttpClient()
 	startTime := carbon.Now().AddHours(-24).TimestampWithMillisecond()
 	endTime := carbon.Now().TimestampWithMillisecond()
@@ -196,6 +199,9 @@ func PolygonCallBack(token string, wg *sync.WaitGroup) {
 			log.Sugar.Error(err)
 		}
 	}()
+	if !data.IsWalletLocked(token) {
+		return
+	}
 	client := http_client.GetHttpClient()
 	apiKey := config.GetEtherscanApi()
 	resp, err := client.R().SetQueryParams(map[string]string{

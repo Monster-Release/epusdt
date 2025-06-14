@@ -108,3 +108,42 @@ func UnLockTransaction(token string, amount float64) error {
 	err := dao.Rdb.Del(ctx, cacheKey).Err()
 	return err
 }
+
+// IsWalletLocked 查询钱包是否已被锁定（有任意金额的订单）
+// 结果可能不太准确，倾向于已被锁定
+func IsWalletLocked(token string) bool {
+	ctx := context.Background()
+	cacheKey := fmt.Sprintf(CacheWalletAddressWithAmountToTradeIdKey, token, "*")
+
+	var cursor uint64
+	// var count uint64
+
+	for {
+		keys, nextCursor, err := dao.Rdb.Scan(ctx, cursor, cacheKey, 1000).Result()
+		if err != nil {
+			fmt.Println("[redis scan]", err)
+			return true // ？
+		}
+
+		for _, key := range keys {
+			// 只统计未过期的键（过期键可能仍然在 SCAN 中被扫到，但已实际失效）
+			ttl, err := dao.Rdb.TTL(ctx, key).Result()
+			if err != nil {
+				return true // ？
+			}
+			// ttl > 0 表示有效
+			if ttl > 0 {
+				// count++
+				// 确定至少有一个锁定的交易
+				return true
+			}
+		}
+
+		cursor = nextCursor
+		if cursor == 0 {
+			break
+		}
+	}
+
+	return false
+}
