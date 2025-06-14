@@ -26,7 +26,6 @@ archives:
     files:
       - .env.example
       - static/*
-      - runtime/*
 checksum:
   name_template: "checksums.txt"
 snapshot:

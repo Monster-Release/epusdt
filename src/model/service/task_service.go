@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/assimon/luuu/config"
 	"github.com/assimon/luuu/model/data"
@@ -98,6 +99,7 @@ func Trc20CallBack(token string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	defer func() {
 		if err := recover(); err != nil {
+			fmt.Println("Trc20CallBack:", time.Now().UTC().Format("2006-01-02 15:04:05 MST"), err)
 			log.Sugar.Error(err)
 		}
 	}()
@@ -190,6 +192,7 @@ func PolygonCallBack(token string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	defer func() {
 		if err := recover(); err != nil {
+			fmt.Println("PolygonCallBack:", time.Now().UTC().Format("2006-01-02 15:04:05 MST"), err)
 			log.Sugar.Error(err)
 		}
 	}()
@@ -214,18 +217,17 @@ func PolygonCallBack(token string, wg *sync.WaitGroup) {
 	var polygonResp PolygonResp
 	err = json.Cjson.Unmarshal(resp.Body(), &polygonResp)
 	if err != nil {
-		fmt.Println("Error:", err)
 		panic(err)
 	}
 	if polygonResp.Status != "1" {
-		return
+		panic(fmt.Sprintf("status %s: %s", polygonResp.Status, polygonResp.Message))
 	}
 	for _, transfer := range polygonResp.Data {
 		confirmation, _ := strconv.Atoi(transfer.Confirmations)
 		isUSDT := strings.EqualFold(transfer.TokenSymbol, "USDT") && strings.EqualFold(transfer.ContractAddress, "0xc2132d05d31c914a87c6611c10748aeb04b58e8f")
 		isToThisAccount := strings.EqualFold(transfer.To, token) // polygon 地址不区分大小写
 		if !isUSDT || !isToThisAccount || confirmation < 5 {
-			fmt.Println("不符合条件的转账:", transfer)
+			// fmt.Println("不符合条件的转账:", transfer)
 			continue
 		}
 		decimalQuant, err := decimal.NewFromString(transfer.Value)
@@ -243,7 +245,6 @@ func PolygonCallBack(token string, wg *sync.WaitGroup) {
 		}
 		order, err := data.GetOrderInfoByTradeId(tradeId)
 		if err != nil {
-			fmt.Println("Error:", err)
 			panic(err)
 		}
 		// 区块的确认时间必须在订单创建时间之后
@@ -264,7 +265,6 @@ func PolygonCallBack(token string, wg *sync.WaitGroup) {
 		}
 		err = OrderProcessing(req)
 		if err != nil {
-			fmt.Println("Error:", err)
 			panic(err)
 		}
 		// 回调队列

@@ -16,3 +16,9 @@ Polygon 链收款需要在 .env 中填写 `polygon_api` ，否则可能会被 po
 - 开发者接入`epusdt`文档👉🏻[开发者接入epusdt](wiki/API.md)
 
 注意：项目中的其他教程和插件来自原版epusdt，不一定正确。
+
+## 日志查看
+
+持久化日志默认位于 `runtime/logs/`
+
+为方便，收款监听的错误日志同时也会在 stdout 打印。

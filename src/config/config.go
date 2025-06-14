@@ -38,10 +38,12 @@ func Init() {
 		"%s%s",
 		gwd,
 		viper.GetString("runtime_root_path"))
+	os.Mkdir(RuntimePath, 0755)
 	LogSavePath = fmt.Sprintf(
 		"%s%s",
 		RuntimePath,
 		viper.GetString("log_save_path"))
+	os.Mkdir(LogSavePath, 0755)
 	MysqlDns = fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		viper.GetString("mysql_user"),
 		viper.GetString("mysql_passwd"),

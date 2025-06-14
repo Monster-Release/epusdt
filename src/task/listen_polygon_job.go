@@ -1,10 +1,11 @@
 package task
 
 import (
+	"sync"
+
 	"github.com/assimon/luuu/model/data"
 	"github.com/assimon/luuu/model/service"
 	"github.com/assimon/luuu/util/log"
-	"sync"
 )
 
 type ListenPolygonJob struct {
@@ -26,10 +27,6 @@ func (r ListenPolygonJob) Run() {
 	var wg sync.WaitGroup
 	for _, address := range walletAddress {
 		wg.Add(1)
-		if err != nil {
-			log.Sugar.Error(err)
-			return
-		}
 		go service.PolygonCallBack(address.Token, &wg)
 	}
 	wg.Wait()
