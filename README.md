@@ -7,9 +7,9 @@
 - 数据库结构有修改，[请用这个文件](./sql/v0.0.1.sql)
 - 兼容原版的 epusdt 插件（默认收 `polygon` 链，使用 `channel` 参数可同时收 `trc20`）
 
-### Polygon Scan API
+### Etherscan API
 
-Polygon 链收款需要在 .env 中填写 `polygon_api` ，否则可能会被 polygonscan 限制查询区块链查询。详情请看 `.env.example` 文件
+Polygon 链收款需要在 .env 中填写 `etherscan_api`，不填用不了。详情请看 `.env.example` 文件
 
 ## 教程：
 

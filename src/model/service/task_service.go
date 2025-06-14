@@ -24,7 +24,7 @@ import (
 )
 
 const UsdtTrc20ApiUri = "https://apilist.tronscanapi.com/api/transfer/trc20"
-const UsdtPolygonApiUri = "https://api.polygonscan.com/api"
+const EtherscanApiUri = "https://api.etherscan.io/v2/api"
 
 type UsdtTrc20Resp struct {
 	PageSize int    `json:"page_size"`
@@ -155,7 +155,7 @@ func Trc20CallBack(token string, wg *sync.WaitGroup) {
 		// 区块的确认时间必须在订单创建时间之后
 		createTime := order.CreatedAt.TimestampWithMillisecond()
 		if transfer.BlockTimestamp < createTime {
-			panic("Orders cannot actually be matched")
+			panic(fmt.Sprintf("Orders cannot actually be matched: %s <-> %s", tradeId, transfer.Hash))
 		}
 		// 到这一步就完全算是支付成功了
 		req := &request.OrderProcessingRequest{
@@ -197,8 +197,9 @@ func PolygonCallBack(token string, wg *sync.WaitGroup) {
 		}
 	}()
 	client := http_client.GetHttpClient()
-	apiKey := config.GetPolygonApi()
+	apiKey := config.GetEtherscanApi()
 	resp, err := client.R().SetQueryParams(map[string]string{
+		"chainid": "137", // polygon
 		"module":  "account",
 		"action":  "tokentx",
 		"address": token,
@@ -206,7 +207,7 @@ func PolygonCallBack(token string, wg *sync.WaitGroup) {
 		"offset":  "10",
 		"sort":    "desc",
 		"apiKey":  apiKey,
-	}).Get(UsdtPolygonApiUri)
+	}).Get(EtherscanApiUri)
 	if err != nil {
 		panic(err)
 	}
@@ -215,12 +216,13 @@ func PolygonCallBack(token string, wg *sync.WaitGroup) {
 	}
 	//println(resp.String())
 	var polygonResp PolygonResp
-	err = json.Cjson.Unmarshal(resp.Body(), &polygonResp)
+	body := resp.Body()
+	err = json.Cjson.Unmarshal(body, &polygonResp)
 	if err != nil {
 		panic(err)
 	}
 	if polygonResp.Status != "1" {
-		panic(fmt.Sprintf("status %s: %s", polygonResp.Status, polygonResp.Message))
+		panic(string(body))
 	}
 	for _, transfer := range polygonResp.Data {
 		confirmation, _ := strconv.Atoi(transfer.Confirmations)
@@ -248,13 +250,13 @@ func PolygonCallBack(token string, wg *sync.WaitGroup) {
 			panic(err)
 		}
 		// 区块的确认时间必须在订单创建时间之后
-		createTime := order.CreatedAt.TimestampWithMillisecond()
+		createTime := order.CreatedAt.TimestampWithSecond()
 		timestamp, err := strconv.ParseInt(transfer.TimeStamp, 10, 64)
 		if err != nil {
 			panic(err)
 		}
-		if timestamp < createTime/1000 {
-			panic("Orders cannot actually be matched")
+		if timestamp < createTime {
+			panic(fmt.Sprintf("Orders cannot actually be matched: %s <-> %s", tradeId, transfer.Hash))
 		}
 		// 到这一步就完全算是支付成功了
 		req := &request.OrderProcessingRequest{

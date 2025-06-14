@@ -73,8 +73,8 @@ func GetAppUri() string {
 	return viper.GetString("app_uri")
 }
 
-func GetPolygonApi() string {
-	return viper.GetString("polygon_api")
+func GetEtherscanApi() string {
+	return viper.GetString("etherscan_api")
 }
 
 func GetPolygonConfirmation() int {
