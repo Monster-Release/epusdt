@@ -62,17 +62,10 @@ func CreateTransaction(req *request.CreateTransactionRequest) (*response.CreateT
 	}
 	// 有无可用钱包
 	channel := req.Channel
-	var walletAddress []mdb.WalletAddress
-
-	switch channel {
-	case model.ChainNameTRC20:
-		walletAddress, err = data.GetAvailableTrc20Wallet()
-	case model.ChainNameBSC:
-		walletAddress, err = data.GetAvailableBSCWallet()
-	default:
+	if channel == "" {
 		channel = model.ChainNamePolygonPOS
-		walletAddress, err = data.GetAvailablePolygonWallet()
 	}
+	walletAddress, err := data.GetAvailableWallet(channel)
 	if err != nil {
 		return nil, err
 	}

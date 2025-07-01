@@ -43,24 +43,10 @@ func DeleteWalletAddressById(id uint64) error {
 	return err
 }
 
-// GetAvailableTrc20Wallet 获得所有可用的钱包地址
-func GetAvailableTrc20Wallet() ([]mdb.WalletAddress, error) {
+// GetAvailableWallet 获得所有可用的钱包地址
+func GetAvailableWallet(channel string) ([]mdb.WalletAddress, error) {
 	var WalletAddressList []mdb.WalletAddress
-	err := dao.Mdb.Model(WalletAddressList).Where("channel = 'trc20' and status = ?", mdb.TokenStatusEnable).Find(&WalletAddressList).Error
-	return WalletAddressList, err
-}
-
-// GetAvailablePolygonWallet 获得所有可用的钱包地址
-func GetAvailablePolygonWallet() ([]mdb.WalletAddress, error) {
-	var WalletAddressList []mdb.WalletAddress
-	err := dao.Mdb.Model(WalletAddressList).Where("channel = 'polygon' and status = ?", mdb.TokenStatusEnable).Find(&WalletAddressList).Error
-	return WalletAddressList, err
-}
-
-// GetAvailableBscWallet 获得所有可用的钱包地址
-func GetAvailableBSCWallet() ([]mdb.WalletAddress, error) {
-	var WalletAddressList []mdb.WalletAddress
-	err := dao.Mdb.Model(WalletAddressList).Where("channel = 'bsc' and status = ?", mdb.TokenStatusEnable).Find(&WalletAddressList).Error
+	err := dao.Mdb.Model(WalletAddressList).Where("channel = ? and status = ?", channel, mdb.TokenStatusEnable).Find(&WalletAddressList).Error
 	return WalletAddressList, err
 }
 

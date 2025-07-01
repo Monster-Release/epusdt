@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	ReplayAddWallet = "请输入钱包地址, 目前仅支持 trc20 polygon bsc 链。"
+	ReplayAddWallet = "请输入钱包地址, 目前仅支持 trc20 eth polygon bsc avax-c 链。"
 )
 
 func OnTextMessageHandle(c tb.Context) error {
@@ -24,13 +24,19 @@ func OnTextMessageHandle(c tb.Context) error {
 		if strings.HasPrefix(walletAddress, "T") {
 			channel = model.ChainNameTRC20
 		} else if strings.HasPrefix(walletAddress, "0x") {
-			return c.Send("EVM 系列钱包地址请在地址前加上所属链和英文冒号，以区分不同的链，例如 polygon: bsc:")
+			return c.Send("EVM 系列钱包地址请在地址前加上所属链和英文冒号，以区分不同的链，例如 eth: polygon: bsc: avax-c:")
 		} else if strings.HasPrefix(walletAddress, "polygon:0x") {
 			channel = model.ChainNamePolygonPOS
 			walletAddress = strings.TrimPrefix(walletAddress, "polygon:")
 		} else if strings.HasPrefix(walletAddress, "bsc:0x") {
 			channel = model.ChainNameBSC
 			walletAddress = strings.TrimPrefix(walletAddress, "bsc:")
+		} else if strings.HasPrefix(walletAddress, "avax-c:0x") {
+			channel = model.ChainNameAVAXC
+			walletAddress = strings.TrimPrefix(walletAddress, "avax-c:")
+		} else if strings.HasPrefix(walletAddress, "eth:0x") {
+			channel = model.ChainNameETH
+			walletAddress = strings.TrimPrefix(walletAddress, "eth:")
 		} else {
 			return c.Send("不支持该钱包地址！")
 		}

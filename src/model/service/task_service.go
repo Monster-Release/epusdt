@@ -207,6 +207,10 @@ func EtherscanCallBack(chainName, token string, wg *sync.WaitGroup) {
 		chainId = "137"
 	case model.ChainNameBSC:
 		chainId = "56"
+	case model.ChainNameAVAXC:
+		chainId = "43114"
+	case model.ChainNameETH:
+		chainId = "1"
 	default:
 		return
 	}
@@ -216,6 +220,10 @@ func EtherscanCallBack(chainName, token string, wg *sync.WaitGroup) {
 		usdtContract = "0xc2132d05d31c914a87c6611c10748aeb04b58e8f"
 	case model.ChainNameBSC:
 		usdtContract = "0x55d398326f99059fF775485246999027B3197955"
+	case model.ChainNameAVAXC:
+		usdtContract = "0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7"
+	case model.ChainNameETH:
+		usdtContract = "0xdac17f958d2ee523a2206206994597c13d831ec7"
 	default:
 		return
 	}

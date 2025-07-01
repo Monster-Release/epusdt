@@ -1,10 +1,12 @@
 package task
 
 import (
+	"sync"
+
+	"github.com/assimon/luuu/model"
 	"github.com/assimon/luuu/model/data"
 	"github.com/assimon/luuu/model/service"
 	"github.com/assimon/luuu/util/log"
-	"sync"
 )
 
 type ListenTrc20Job struct {
@@ -15,7 +17,7 @@ var gListenTrc20JobLock sync.Mutex
 func (r ListenTrc20Job) Run() {
 	gListenTrc20JobLock.Lock()
 	defer gListenTrc20JobLock.Unlock()
-	walletAddress, err := data.GetAvailableTrc20Wallet()
+	walletAddress, err := data.GetAvailableWallet(model.ChainNameTRC20)
 	if err != nil {
 		log.Sugar.Error(err)
 		return

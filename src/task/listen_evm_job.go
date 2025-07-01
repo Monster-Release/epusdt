@@ -20,8 +20,8 @@ func (r ListenEvmJob) Run() {
 
 	var wg sync.WaitGroup
 
-	polygon := func() {
-		walletAddress, err := data.GetAvailablePolygonWallet()
+	listerner := func(chainName string) {
+		walletAddress, err := data.GetAvailableWallet(chainName)
 		if err != nil {
 			log.Sugar.Error(err)
 			return
@@ -31,26 +31,14 @@ func (r ListenEvmJob) Run() {
 		}
 		for _, address := range walletAddress {
 			wg.Add(1)
-			go service.EtherscanCallBack(model.ChainNamePolygonPOS, address.Token, &wg)
+			go service.EtherscanCallBack(chainName, address.Token, &wg)
 		}
 	}
-	polygon()
 
-	bsc := func() {
-		walletAddress, err := data.GetAvailableBSCWallet()
-		if err != nil {
-			log.Sugar.Error(err)
-			return
-		}
-		if len(walletAddress) <= 0 {
-			return
-		}
-		for _, address := range walletAddress {
-			wg.Add(1)
-			go service.EtherscanCallBack(model.ChainNameBSC, address.Token, &wg)
-		}
-	}
-	bsc()
+	listerner(model.ChainNamePolygonPOS)
+	listerner(model.ChainNameAVAXC)
+	listerner(model.ChainNameBSC)
+	listerner(model.ChainNameETH)
 
 	wg.Wait()
 }

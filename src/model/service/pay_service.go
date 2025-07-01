@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/assimon/luuu/config"
+	"github.com/assimon/luuu/model"
 	"github.com/assimon/luuu/model/data"
 	"github.com/assimon/luuu/model/mdb"
 	"github.com/assimon/luuu/model/response"
@@ -25,6 +26,18 @@ func GetCheckoutCounterByTradeId(tradeId string) (*response.CheckoutCounterRespo
 		parts := strings.Split(token, ":")
 		channel = parts[0]
 		token = parts[1]
+	}
+	switch channel {
+	case model.ChainNamePolygonPOS:
+		channel = "Polygon PoS Chain (POL)"
+	case model.ChainNameAVAXC:
+		channel = "Avalanche (C-Chain)"
+	case model.ChainNameETH:
+		channel = "Ethereum - ERC20"
+	case model.ChainNameBSC:
+		channel = "BNB Smart Chain - BEP20"
+	case model.ChainNameTRC20:
+		channel = "TRON - TRC20"
 	}
 	resp := &response.CheckoutCounterResponse{
 		TradeId:        orderInfo.TradeId,
