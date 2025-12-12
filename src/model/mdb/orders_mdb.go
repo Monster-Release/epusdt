@@ -20,7 +20,6 @@ type Orders struct {
 	RedirectUrl          string  `gorm:"column:redirect_url" json:"redirect_url"`                 //  同步回调地址
 	CallbackNum          int     `gorm:"column:callback_num" json:"callback_num"`                 // 回调次数
 	CallBackConfirm      int     `gorm:"column:callback_confirm" json:"callback_confirm"`         // 回调是否已确认 1是 2否
-	StartBlock           int     `gorm:"column:start_block" json:"start_block"`                   // 区块开始地址
 	BaseModel
 }
 

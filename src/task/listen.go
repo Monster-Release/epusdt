@@ -12,5 +12,6 @@ func Start() {
 	c.AddJob("@every 60s", UsdtRateJob{})
 	c.AddJob("@every 15s", ListenTrc20Job{})
 	c.AddJob("@every 15s", ListenEvmJob{})
+	c.AddJob("@every 15s", ListenAptosJob{})
 	c.Start()
 }

@@ -31,7 +31,7 @@ func (r ListenEvmJob) Run() {
 		}
 		for _, address := range walletAddress {
 			wg.Add(1)
-			go service.EtherscanCallBack(chainName, address.Token, &wg)
+			go service.EtherscanApiScan(chainName, address.Token, &wg)
 		}
 	}
 

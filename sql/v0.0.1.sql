@@ -44,3 +44,8 @@ create table wallet_address
 create index wallet_address_token_index
     on wallet_address (token);
 
+-- 20251209
+
+ALTER TABLE `wallet_address` CHANGE `token` `token` VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '钱包token';
+ALTER TABLE `orders` CHANGE `token` `token` VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '所属钱包地址';
+ALTER TABLE `orders` DROP `start_block`;

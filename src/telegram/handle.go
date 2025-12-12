@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	ReplayAddWallet = "请输入钱包地址, 目前仅支持 trc20 eth polygon bsc avax-c 链。"
+	ReplayAddWallet = "请输入钱包地址, 目前仅支持 trc20 eth polygon bsc avax-c aptos 链。"
 )
 
 func OnTextMessageHandle(c tb.Context) error {
@@ -24,7 +24,7 @@ func OnTextMessageHandle(c tb.Context) error {
 		if strings.HasPrefix(walletAddress, "T") {
 			channel = model.ChainNameTRC20
 		} else if strings.HasPrefix(walletAddress, "0x") {
-			return c.Send("EVM 系列钱包地址请在地址前加上所属链和英文冒号，以区分不同的链，例如 eth: polygon: bsc: avax-c:")
+			return c.Send("EVM 系列钱包地址请在地址前加上所属链和英文冒号，以区分不同的链，例如 eth: polygon: bsc: avax-c: aptos:")
 		} else if strings.HasPrefix(walletAddress, "polygon:0x") {
 			channel = model.ChainNamePolygonPOS
 			walletAddress = strings.TrimPrefix(walletAddress, "polygon:")
@@ -37,6 +37,9 @@ func OnTextMessageHandle(c tb.Context) error {
 		} else if strings.HasPrefix(walletAddress, "eth:0x") {
 			channel = model.ChainNameETH
 			walletAddress = strings.TrimPrefix(walletAddress, "eth:")
+		} else if strings.HasPrefix(walletAddress, "aptos:0x") {
+			channel = model.ChainNameAptos
+			walletAddress = strings.TrimPrefix(walletAddress, "aptos:")
 		} else {
 			return c.Send("不支持该钱包地址！")
 		}
@@ -55,21 +58,41 @@ func WalletList(c tb.Context) error {
 	if err != nil {
 		return err
 	}
+
 	var btnList [][]tb.InlineButton
-	for _, wallet := range wallets {
+	var fullList strings.Builder
+	fullList.WriteString("请点击钱包继续操作\n\n")
+	fullList.WriteString("完整钱包地址列表：\n")
+
+	for i, wallet := range wallets {
 		status := "已启用✅"
 		if wallet.Status == mdb.TokenStatusDisable {
 			status = "已禁用🚫"
 		}
+
+		// 按钮显示内容（截断）
+		tokenShow := wallet.Token
+		if len(wallet.Token) > 50 {
+			tokenShow = wallet.Token[:50]
+		}
+
+		// --- 按钮 ---
 		var temp []tb.InlineButton
 		btnInfo := tb.InlineButton{
-			Unique: wallet.Token,
-			Text:   fmt.Sprintf("[%s] %s [%s]", wallet.Channel, wallet.Token, status),
+			Unique: strutil.Md5(wallet.Token),
+			Text:   fmt.Sprintf("[%s] %s [%s]", wallet.Channel, tokenShow, status),
 			Data:   strutil.MustString(wallet.ID),
 		}
 		bots.Handle(&btnInfo, WalletInfo)
 		btnList = append(btnList, append(temp, btnInfo))
+
+		// --- 追加完整地址到消息内容 ---
+		fullList.WriteString(
+			fmt.Sprintf("%d. [%s] %s\n", i+1, wallet.Channel, wallet.Token),
+		)
 	}
+
+	// 添加钱包按钮
 	addBtn := tb.InlineButton{Text: "添加钱包地址", Unique: "AddWallet"}
 	bots.Handle(&addBtn, func(c tb.Context) error {
 		return c.Send(ReplayAddWallet, &tb.ReplyMarkup{
@@ -77,7 +100,8 @@ func WalletList(c tb.Context) error {
 		})
 	})
 	btnList = append(btnList, []tb.InlineButton{addBtn})
-	return c.EditOrSend("请点击钱包继续操作", &tb.ReplyMarkup{
+
+	return c.EditOrSend(fullList.String(), &tb.ReplyMarkup{
 		InlineKeyboard: btnList,
 	})
 }

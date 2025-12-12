@@ -57,7 +57,7 @@ func Init() {
 }
 
 func GetAppVersion() string {
-	return "0.0.6"
+	return "0.0.7"
 }
 
 func GetAppName() string {

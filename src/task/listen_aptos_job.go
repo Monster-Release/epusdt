@@ -9,15 +9,18 @@ import (
 	"github.com/assimon/luuu/util/log"
 )
 
-type ListenTrc20Job struct {
+type ListenAptosJob struct {
 }
 
-var gListenTrc20JobLock sync.Mutex
+var gListenAptosJobLock sync.Mutex
 
-func (r ListenTrc20Job) Run() {
-	gListenTrc20JobLock.Lock()
-	defer gListenTrc20JobLock.Unlock()
-	walletAddress, err := data.GetAvailableWallet(model.ChainNameTRC20)
+func (r ListenAptosJob) Run() {
+	gListenAptosJobLock.Lock()
+	defer gListenAptosJobLock.Unlock()
+
+	var wg sync.WaitGroup
+
+	walletAddress, err := data.GetAvailableWallet(model.ChainNameAptos)
 	if err != nil {
 		log.Sugar.Error(err)
 		return
@@ -25,10 +28,10 @@ func (r ListenTrc20Job) Run() {
 	if len(walletAddress) <= 0 {
 		return
 	}
-	var wg sync.WaitGroup
 	for _, address := range walletAddress {
 		wg.Add(1)
-		go service.Trc20ApiScan(address.Token, &wg)
+		go service.AptosApiScan(address.Token, &wg)
 	}
+
 	wg.Wait()
 }

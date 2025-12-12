@@ -6,4 +6,5 @@ const (
 	ChainNameAVAXC      = "avax-c"
 	ChainNameETH        = "eth"
 	ChainNamePolygonPOS = "polygon"
+	ChainNameAptos      = "aptos"
 )

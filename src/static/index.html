@@ -6,8 +6,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Epusdt - 优雅的usdt支付中间件</title>
-    <link rel="stylesheet" href="/static/reset.css">
     <style>
+        /* index.html */
+
         .main {
             width: 320px;
             margin: 0 auto;
@@ -51,7 +52,6 @@
         }
 
         .qr-code-container {
-            padding: 20px;
             width: 90%;
             margin: 0 auto 20px;
             background-color: #fff;
@@ -72,6 +72,7 @@
         }
 
         .address-text {
+            overflow-wrap: break-word;
             font-size: 12px;
             text-align: center;
             color: #888;
@@ -137,8 +138,8 @@
         <div class="site">
             订单编号：{{.TradeId}}
         </div>
-        <p class="red-text" style="font-size: large;color: white;background-color: indianred;">公益提示：<br>傻逼 TRC20
-            转账费用屡次涨价，现在已是最贵的 USDT 网络！<br>强烈推荐改用低手续费的其他网络，不要再用 TRON 了！</p>
+        <p class="red-text" style="font-size: large;color: white;background-color: indianred;">公益提示：<br>Tron (Trc20)
+            是目前最贵的区块链网络，强烈推荐改用低手续费的其他网络，不要再用 Tron 了！</p>
         <div class="red-text">当前付款网络为【{{.Channel}}】，到账金额需要与下方显示的金额一致，否则系統无法确认！！</div>
         <div class="red-text">尝试点击钱包地址或金额可直接复制👇</div>
         <div class="qr-code-container">
@@ -166,7 +167,17 @@
                 </div>
             </div>
         </div>
-    </div>
+
+        <div class="instructions">
+            <h4>📋 转账说明</h4>
+            <ol>
+                <li>必须使用 <strong>{{.Channel}} 网络</strong> 进行转账</li>
+                <li>币种为 USDT，请勿转入其他币种！</li>
+                <li>转账完成后系统会自动确认到账</li>
+                <li>转账金额必须与显示金额完全一致</li>
+                <li>如果有其它疑问，请联系客服处理</li>
+            </ol>
+        </div>
     </div>
 </body>
 

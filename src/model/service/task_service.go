@@ -28,15 +28,15 @@ const UsdtTrc20ApiUri = "https://apilist.tronscanapi.com/api/transfer/trc20"
 const EtherscanApiUri = "https://api.etherscan.io/v2/api"
 
 type UsdtTrc20Resp struct {
-	PageSize int    `json:"page_size"`
-	Code     int    `json:"code"`
-	Data     []Data `json:"data"`
+	PageSize int         `json:"page_size"`
+	Code     int         `json:"code"`
+	Data     []Trc20Data `json:"data"`
 }
 
 type EtherscanResp struct {
-	Status  string   `json:"status"`
-	Message string   `json:"message"`
-	Data    []Result `json:"result"`
+	Status  string            `json:"status"`
+	Message string            `json:"message"`
+	Data    []EtherscanResult `json:"result"`
 }
 
 type TokenInfo struct {
@@ -52,7 +52,7 @@ type TokenInfo struct {
 	Vip          bool   `json:"vip"`
 }
 
-type Data struct {
+type Trc20Data struct {
 	Amount         string `json:"amount"`
 	ApprovalAmount string `json:"approval_amount"`
 	BlockTimestamp int64  `json:"block_timestamp"`
@@ -73,7 +73,7 @@ type Data struct {
 	Direction      int    `json:"direction"`
 }
 
-type Result struct {
+type EtherscanResult struct {
 	BlockNumber       string `json:"blockNumber"`
 	TimeStamp         string `json:"timeStamp"`
 	Hash              string `json:"hash"`
@@ -95,8 +95,7 @@ type Result struct {
 	Confirmations     string `json:"confirmations"`
 }
 
-// Trc20CallBack trc20回调
-func Trc20CallBack(token string, wg *sync.WaitGroup) {
+func Trc20ApiScan(token string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	defer func() {
 		if err := recover(); err != nil {
@@ -160,7 +159,8 @@ func Trc20CallBack(token string, wg *sync.WaitGroup) {
 		// 区块的确认时间必须在订单创建时间之后
 		createTime := order.CreatedAt.TimestampWithMillisecond()
 		if transfer.BlockTimestamp < createTime {
-			panic(fmt.Sprintf("Orders cannot actually be matched: %s <-> %s", tradeId, transfer.Hash))
+			log.Sugar.Warnf("Orders cannot actually be matched: %s <-> %s", tradeId, transfer.Hash)
+			continue
 		}
 		// 到这一步就完全算是支付成功了
 		req := &request.OrderProcessingRequest{
@@ -178,7 +178,7 @@ func Trc20CallBack(token string, wg *sync.WaitGroup) {
 		mq.MClient.Enqueue(orderCallbackQueue, asynq.MaxRetry(5))
 		// 发送机器人消息
 		msgTpl := `
-<b>📢📢有新的交易支付成功！</b>
+<b>📢📢有新的 Trc20 交易支付成功！</b>
 <pre>交易号：%s</pre>
 <pre>订单号：%s</pre>
 <pre>请求支付金额：%f cny</pre>
@@ -186,14 +186,15 @@ func Trc20CallBack(token string, wg *sync.WaitGroup) {
 <pre>钱包地址：%s</pre>
 <pre>订单创建时间：%s</pre>
 <pre>支付成功时间：%s</pre>
+<pre>交易哈希：%s</pre>
 `
 		msg := fmt.Sprintf(msgTpl,
-			order.TradeId, order.OrderId, order.Amount, order.ActualAmount, tokenWithChainPrefix, order.CreatedAt.ToDateTimeString(), carbon.Now().ToDateTimeString())
+			order.TradeId, order.OrderId, order.Amount, order.ActualAmount, tokenWithChainPrefix, order.CreatedAt.ToDateTimeString(), carbon.Now().ToDateTimeString(), transfer.Hash)
 		telegram.SendToBot(msg)
 	}
 }
 
-func EtherscanCallBack(chainName, token string, wg *sync.WaitGroup) {
+func EtherscanApiScan(chainName, token string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	defer func() {
 		if err := recover(); err != nil {
@@ -298,7 +299,8 @@ func EtherscanCallBack(chainName, token string, wg *sync.WaitGroup) {
 			panic(err)
 		}
 		if timestamp < createTime {
-			panic(fmt.Sprintf("Orders cannot actually be matched: %s <-> %s", tradeId, transfer.Hash))
+			log.Sugar.Warnf("Orders cannot actually be matched: %s <-> %s", tradeId, transfer.Hash)
+			continue
 		}
 		// 到这一步就完全算是支付成功了
 		req := &request.OrderProcessingRequest{
@@ -324,9 +326,10 @@ func EtherscanCallBack(chainName, token string, wg *sync.WaitGroup) {
 <pre>钱包地址：%s</pre>
 <pre>订单创建时间：%s</pre>
 <pre>支付成功时间：%s</pre>
+<pre>交易哈希：%s</pre>
 `
 		msg := fmt.Sprintf(msgTpl,
-			order.TradeId, order.OrderId, order.Amount, order.ActualAmount, tokenWithChainPrefix, order.CreatedAt.ToDateTimeString(), carbon.Now().ToDateTimeString())
+			order.TradeId, order.OrderId, order.Amount, order.ActualAmount, tokenWithChainPrefix, order.CreatedAt.ToDateTimeString(), carbon.Now().ToDateTimeString(), transfer.Hash)
 		telegram.SendToBot(msg)
 	}
 }
